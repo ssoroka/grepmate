@@ -1,12 +1,16 @@
-= grepmate
+= Grepmate
 
 Extremely fast search of rails projects or rails source for code, open in textmate or browser with html output
 
-== SYNOPSIS
+== Usage
 
   grepmate [what_to_search_for*] [dir=dir] [exclude=exclude] [options]+
+  
+or this works too... 
 
-== PARAMETERS
+  grepmate [options]+ [what_to_search_for*] [dir=dir] [exclude=exclude]
+
+== Parameters
 
   what_to_search_for (-1 ~> what_to_search_for) 
       What to search for. Enclose in quotes to search for phrase. 
@@ -45,3 +49,4 @@ Extremely fast search of rails projects or rails source for code, open in textma
 
 - check ~/.grepmate for current rails repo to use instead of always using latest
 - change output file to write to /tmp or something
+- add include parameter to selectively include file extensions
