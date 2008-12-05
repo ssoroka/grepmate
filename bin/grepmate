@@ -1,0 +1,292 @@
+#!/usr/bin/env ruby
+# script/grepmate    brought to you by Steven Soroka and Zach Holt
+# script/grepmate --help for help screen
+require 'rubygems'
+gem 'main', '>=2.8.0'
+require 'main' # don't think this line is needed. gem should require it
+
+
+def gem_path
+  `gem environment gemdir`.chomp
+end
+
+def gems_path
+  File.join(gem_path, 'gems')
+end
+
+def rails_version
+  `rails -v`.chomp.split(' ').last
+end
+
+def rails_path
+  vendor_rails = "vendor/rails"
+
+  if File.exist?(vendor_rails)
+    vendor_rails
+  else
+    Dir["#{gems_path}/acti*-#{rails_version}"]
+  end
+end
+
+Main {
+  option( 'case' ) {
+    cast :bool
+    description 'Case sensitive search (exclude for case insensitive).'
+  }
+
+  option( 'no_html', 'H' ) {
+    cast :bool
+    description 'Turn off HTML output.'
+  }
+
+  option( 'only_rails', 'R' ) {
+    cast :bool
+    description 'Search Rails source, not the project.  Takes precedence over dir='
+  }
+
+  option( 'rails', 'r' ) {
+    cast :bool
+    description 'Search Rails source, in addition to whatever is named by dir= dir= etc.'
+  }
+  
+  option('gems', 'g') {
+    cast :bool
+    description "Search all gems, in addition to whatever is named by dir= dir= etc."
+  }
+
+  option('only_gems', 'G') {
+    cast :bool
+    description "Search only gems, not the project.  Takes precedence over dir="
+  }
+
+  option( 'wait', 'w' ) {
+    cast :bool
+    description 'Wait between finds until TextMate is closed.  Only works with --no_html.'
+  }
+
+  option( 'count', 'c' ) {
+    cast :bool
+    description 'Display only the number of matches.'
+  }
+
+  keyword( 'dir', 'd' ) {
+    arity -1
+    default 'app', 'config', 'db', 'lib', 'spec', 'public', 'vendor/plugins', 'test/selenium_fixtures', 'test/selenium'
+    description 'Directories to search. Defaults to project.'
+  }
+
+  keyword( 'exclude' ) {
+    arity -1
+    cast { |v| Regexp.new( v ) }
+    default '\.sql$', '\.log$', '\.tmp$', '\.gz$', '\.bz2$', '\.tar$', '\.db$', '\.sqlite$', '\.sqlite3$', '\.csv$', '\.DS_Store$', '\.svn', '\.git', '\.CSV$', 'grepmate\.html$'
+    description 'Exclude paths matching these patterns.'
+  }
+
+  argument( 'what_to_search_for' ) {
+    arity -1
+    description "What to search for.  Enclose in quotes to search for phrase."
+  }
+
+
+  def determine_directories_to_search
+    if @stdin.tty?
+      dirs = if params['only_rails'].value || params['only_gems'].value
+        [] 
+      else
+        params['dir'].values
+      end
+      dirs += Array(rails_path) if params['only_rails'].value || params['rails'].value
+      dirs << gems_path if params['only_gems'].value || params['gems'].value
+    else
+      dirs = []
+      input = @stdin.read
+
+      input.split( "\n" ).each do |ln|
+        if ln =~ /^([^:]*)/ # Assume everything to the first colon is a file name
+          filename = File.expand_path( $1 )
+          if File.exist?( filename ) # But actually check that it is
+            dirs << filename
+          end
+        end
+      end
+    end
+    dirs.map{ |dir| File.expand_path( dir ) }.uniq
+  end
+
+  def determine_what_to_search_for
+    # funny bunny => 'funny' 'bunny'
+    # 'funny bunny' => 'funny bunny'
+    params['what_to_search_for'].values.map {|v| "\"#{v.gsub( /"/, '\\"' )}\"" }.join( " " )
+  end
+
+  def determine_javascript_highlight_text
+    # funny bunny => 'funny' 'bunny'
+    # 'funny bunny' => 'funny bunny'
+    params['what_to_search_for'].values.map {|v| "highlightSearchTerms('#{v.gsub( /'/, "\\'" ).gsub( /:/, "\\:" )}', false)" }.join( ";" )
+  end
+
+  def find( what_to_find, opts={} )
+    directories = opts[:in]
+
+    paths = `find #{directories.join(' ')}`.split( "\n" )
+
+    paths.delete_if { |path| params['exclude'].values.any?{ |exclude| path =~ exclude } }
+
+    cmd = 'grep '
+    cmd << '-i ' unless params['case'].value
+    # 3 lines of context unless we're not displaying html, or we're counting, or we're piping into another process
+    cmd << '-C 3 ' if !params['no_html'].value && !params['count'].value && @stdout.tty?
+
+    # paths get too large for grep to handle, so limit the number it has to deal with at once.
+    results = []
+    paths.each_slice(100) {|paths|
+      results += `#{cmd} -n #{what_to_find} #{paths.join(" ")}`.split( "\n" )
+    }
+    results
+  end
+
+  def display( results )
+    if results.empty?
+      puts "Nothing found!"
+      exit
+    elsif params['count'].value
+      puts "Matches: #{results.size}"
+      exit
+    end
+
+    if @stdout.tty?
+      if params['no_html'].value
+        display_textmate results
+      else
+        display_html results
+      end
+    else
+      puts results
+    end
+  end
+
+  def display_textmate( results )
+    print "Found #{results.size} matches.  "
+    if results.size > 20
+      puts  "Display? [Y/n]..."
+      exit if $stdin.gets.chomp.downcase == 'n'
+    end
+
+    results.each { |f|
+      file, line = f.split( ':' )
+      system( "mate #{'-w ' if params['wait'].value}-l #{line} #{file}" )
+    }
+  end
+
+  def display_html( results )
+    syntax_installed = true
+    begin
+      require 'syntax/convertors/html'
+    rescue LoadError
+      syntax_installed = false
+    end
+
+    html = '<html><head>'
+    html << <<-CSS
+<style type="text/css">body { background-color: #EEEEEE; } pre {
+display: inline; } .ruby { font-family: Monaco; font-size: 10pt;
+background-color: white } .ruby .normal {} .ruby .comment { color:
+#005; font-style: italic; } .ruby .keyword { color: #A00; font-weight:
+bold; } .ruby .method { color: #077; } .ruby .class { color: #074; }
+.ruby .module { color: #050; } .ruby .punct { color: #447; font-weight:
+bold; } .ruby .symbol { color: #099; } .ruby .string { color: #944;
+background: #FFE; } .ruby .char { color: #F07; } .ruby .ident { color:
+#004; } .ruby .constant { color: #07F; } .ruby .regex { color: #B66;
+background: #FEF; } .ruby .number { color: #F99; } .ruby .attribute {
+color: #7BB; } .ruby .global { color: #7FB; } .ruby .expr { color:
+#227; } .ruby .escape { color: #277; } .ruby .highlight {
+background-color: yellow; font-weight: 900; } td.lineno { text-align:
+right; font-family: Monaco; font-size: 9pt; padding-right: 10px; }
+td.filename { padding-top: 35px; font-family: Monaco; font-size: 14pt;
+}</style>
+
+<script type="text/javascript">
+// http://www.nsftools.com/misc/SearchAndHighlight.htm
+
+function doHighlight(bodyText,searchTerm,highlightStartTag,highlightEndTag)
+{if((!highlightStartTag)||(!highlightEndTag)){highlightStartTag="<font style='color:blue; background-color:yellow;'>";highlightEndTag="</font>";}
+var newText="";var i=-1;var lcSearchTerm=searchTerm.toLowerCase();var lcBodyText=bodyText.toLowerCase();while(bodyText.length>0){i=lcBodyText.indexOf(lcSearchTerm,i+1);if(i<0){newText+=bodyText;bodyText="";}else{if(bodyText.lastIndexOf(">",i)>=bodyText.lastIndexOf("<",i)){if(lcBodyText.lastIndexOf("/script>",i)>=lcBodyText.lastIndexOf("<script",i)){newText+=bodyText.substring(0,i)+highlightStartTag+bodyText.substr(i,searchTerm.length)+highlightEndTag;bodyText=bodyText.substr(i+searchTerm.length);lcBodyText=bodyText.toLowerCase();i=-1;}}}}
+return newText;}
+function highlightSearchTerms(searchText,treatAsPhrase,warnOnFailure,highlightStartTag,highlightEndTag)
+{if(treatAsPhrase){searchArray=[searchText];}else{searchArray=searchText.split(" ");}
+if(!document.body||typeof(document.body.innerHTML)=="undefined"){if(warnOnFailure){alert("Sorry, for some reason the text of this page is unavailable. Searching will not work.");}
+return false;}
+var bodyText=document.body.innerHTML;for(var i=0;i<searchArray.length;i++){bodyText=doHighlight(bodyText,searchArray[i],highlightStartTag,highlightEndTag);}
+document.body.innerHTML=bodyText;return true;}</script></script>
+  CSS
+
+    html << "</head><body onLoad=\"#{determine_javascript_highlight_text}\">"
+
+    syntax_converter = ( syntax_installed ? Syntax::Convertors::HTML.for_syntax( "ruby" ) : nil )
+    html << '<pre>sudo gem install syntax</pre> to get syntax highlighting<br><br>' unless syntax_installed
+
+    html << '<table cellspacing="0" cellpadding="2">'
+
+    last_file = ''
+    separator = false
+
+    html << results.map{ |line|
+      if line == '--'
+        separator = true
+        ''
+      elsif line =~ /^(.+?)-(\d+)-(.*)$/ || line =~ /^(.+?):(\d+):(.*)$/
+        file = $1
+        line = $2
+        context = $3
+
+        file_group = ''
+
+        if file == last_file
+          file_group << "<tr><td class=\"lineno\">...</td><td></td></tr>" if separator
+        else
+          parts = file.split( /\// )
+          path = ''
+          file_group << "<tr><td colspan=\"2\" class=\"filename\">"
+          parts.each do |part|
+            path << "/#{part}"
+            file_group << "/" unless part.equal?( parts.first )
+            if part.equal?( parts.last )
+              file_group << "<a href=\"txmt://open?url=file://#{file}\">#{part}</a>"
+            else
+              file_group << "<a href=\"file:/#{path}\">#{part}</a>"
+            end
+          end
+          file_group << "</td></tr>\n"
+        end
+
+        separator = false
+        last_file = file
+
+        file_group << "<tr><td class=\"lineno\"><a href=\"txmt://open?url=file://#{file}&line=#{line}\">#{line}</a></td>"
+
+        converted = begin
+          syntax_converter ? syntax_converter.convert( context =~ /^(.+?)\s*$/ ? $1 : context ) : context
+        rescue Exception => e
+          "TOKENIZING ERROR: #{context} <!-- \n#{e.message}\n#{e.backtrace.join("\n")}\n -->"
+        end
+        file_group << "<td class=\"ruby\">#{ converted }</td></tr>\n"
+
+        file_group
+      end
+    }.join
+
+    html << '</table></body></html>'
+
+    File.open('grepmate.html', 'w') { |f| f.write(html) }
+    system("open grepmate.html")
+  end
+
+  def run
+    haystack = determine_directories_to_search
+    needle = determine_what_to_search_for
+
+    results = find needle, :in => haystack
+
+    display results
+  end
+}
