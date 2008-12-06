@@ -1,4 +1,5 @@
 bin/grepmate
+grepmate.gemspec
+Manifest
 Rakefile
 README
-Manifest

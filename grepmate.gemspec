@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = %q{grepmate}
-  s.version = "1.0.0"
+  s.version = "1.0.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Steven Soroka"]
@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.email = %q{ssoroka78@gmail.com}
   s.executables = ["grepmate"]
   s.extra_rdoc_files = ["bin/grepmate", "README"]
-  s.files = ["bin/grepmate", "Rakefile", "README", "Manifest", "grepmate.gemspec"]
+  s.files = ["bin/grepmate", "grepmate.gemspec", "Manifest", "Rakefile", "README"]
   s.has_rdoc = true
   s.homepage = %q{http://github.com/ssoroka/grepmate}
   s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Grepmate", "--main", "README"]
