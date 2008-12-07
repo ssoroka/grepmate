@@ -50,3 +50,5 @@ or this works too...
 - check ~/.grepmate for current rails repo to use instead of always using latest
 - change output file to write to /tmp or something
 - add include parameter to selectively include file extensions
+- Allow global and cwd .gmconfig files to determine things like exclusions and inclusions.
+- If we're not in a RAILS_ROOT, assume -r ./*

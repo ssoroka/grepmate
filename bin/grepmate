@@ -5,7 +5,6 @@ require 'rubygems'
 gem 'main', '>=2.8.0'
 require 'main' # don't think this line is needed. gem should require it
 
-
 def gem_path
   `gem environment gemdir`.chomp
 end
@@ -80,6 +79,12 @@ Main {
     cast { |v| Regexp.new( v ) }
     default '\.sql$', '\.log$', '\.tmp$', '\.gz$', '\.bz2$', '\.tar$', '\.db$', '\.sqlite$', '\.sqlite3$', '\.csv$', '\.DS_Store$', '\.svn', '\.git', '\.CSV$', 'grepmate\.html$'
     description 'Exclude paths matching these patterns.'
+  }
+
+  keyword( 'tempfile' ) {
+    arity 1
+    default '/tmp/grepmate_out.html'
+    description "Where to store search results for HTML output.  Terminate with .html"
   }
 
   argument( 'what_to_search_for' ) {
@@ -277,8 +282,11 @@ document.body.innerHTML=bodyText;return true;}</script></script>
 
     html << '</table></body></html>'
 
-    File.open('grepmate.html', 'w') { |f| f.write(html) }
-    system("open grepmate.html")
+    FileUtils.makedirs( File.dirname( params['tempfile'].value ) )
+    FileUtils.touch( params['tempfile'].value )
+    File.open( params['tempfile'].value, 'w' ) { |f| f.write(html) }
+
+    system( "open #{params['tempfile'].value}" )
   end
 
   def run
