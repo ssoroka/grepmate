@@ -12,8 +12,7 @@ begin
     gem.authors = ["Steven Soroka", 'Zach Holt']
     gem.add_dependency 'main', '>= 2.8.3'
     gem.add_dependency 'syntax', '>= 1.0.0'
-    gem.executables = ['bin/grepmate']
-    gem.default_executable = 'bin/grepmate'
+    gem.executables = ['grepmate']
     # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
 

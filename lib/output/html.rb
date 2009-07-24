@@ -114,8 +114,19 @@ module Output
 
       html << '</table></body></html>'
 
-      FileUtils.makedirs(File.dirname(TEMP_FILE))
-      FileUtils.touch(TEMP_FILE)
+      begin
+        FileUtils.touch(TEMP_FILE)
+      rescue Errno::EACCES => e
+        puts %(
+
+        Looks like there's a permission error for the file #{TEMP_FILE}.  The grepmate gem expects to have write access to this file.
+
+        To fix, please do:
+          sudo chmod 0666 #{TEMP_FILE}
+          
+        )
+        raise e
+      end
       File.open(TEMP_FILE, 'w') { |f| f.write(html) }
 
       system("open #{TEMP_FILE}")

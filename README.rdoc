@@ -21,9 +21,11 @@ Extremely fast search of rails projects or rails source for code, open in textma
       --textmate, -t 
           open matches in textmate 
       --html 
-          Turn on html output 
+          Turn on html output (default) 
       --text 
           show matches as text, file and line number 
+      --file_and_line, -f 
+          output only match file and line number 
       --rails, -r 
           Search Rails source, in addition to whatever is named by dir parameter 
           etc. 
@@ -42,6 +44,8 @@ Extremely fast search of rails projects or rails source for code, open in textma
           Display only the number of matches. 
       --regex, -e 
           use regular expression search terms 
+      --verbose, -v 
+          Turn on verbose mode and explain everything 
       --help, -h 
 
 == Authors
