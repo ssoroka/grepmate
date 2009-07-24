@@ -1,6 +1,8 @@
 = Grepmate
 
-Extremely fast search of rails projects or rails source for code, open in textmate or browser with html output
+Extremely fast search of rails projects or ruby source for code.
+
+Supports opening search results in textmate, browser (html), or as text.
 
 == Usage
 
