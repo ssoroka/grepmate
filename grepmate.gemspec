@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
      "VERSION",
      "bin/grepmate",
      "config/dot-grepmate",
+     "grepmate.gemspec",
      "lib/.empty",
      "lib/.git-empty",
      "lib/grepmate.rb",
