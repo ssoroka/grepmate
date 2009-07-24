@@ -1,0 +1,37 @@
+# this file will be installed as ~/.grepmate
+--- 
+# valid outputs are: text, html, textmate, file_and_line
+default_output: html
+search_rails_source: false
+search_gems: false
+# if you only want to search a specific rails version, uncomment and set this:
+# :use_only_rails_version: 2.3.2
+exclude_file_extensions: 
+  - sql
+  - log
+  - tmp
+  - gz
+  - bz2
+  - tar
+  - db
+  - sqlite
+  - sqlite3
+  - csv
+  - DS_Store
+  - svn
+  - git
+exclude_from_path:
+  - \W.git\W
+  - \W.svn\W
+search_dirs: 
+  - app
+  - bin
+  - config
+  - db
+  - factories
+  - features
+  - lib
+  - public
+  - spec
+  - test
+  - vendor/plugins

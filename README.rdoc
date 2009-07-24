@@ -1,0 +1,58 @@
+= Grepmate
+
+Extremely fast search of rails projects or rails source for code, open in textmate or browser with html output
+
+== Usage
+
+    NAME
+      grepmate
+
+    SYNOPSIS
+      grepmate [what_to_search_for*] [dir=dir] [options]+
+
+    PARAMETERS
+      what_to_search_for (-1 ~> what_to_search_for) 
+          Search terms. Enclose in quotes to search for phrase. use with -e or 
+          --regex option for regular expression support 
+      dir=dir (-1 ~> dir) 
+          Directories to search. Defaults to project dirs. 
+      --case 
+          Case sensitive search (default is off). 
+      --textmate, -t 
+          open matches in textmate 
+      --html 
+          Turn on html output 
+      --text 
+          show matches as text, file and line number 
+      --rails, -r 
+          Search Rails source, in addition to whatever is named by dir parameter 
+          etc. 
+      --only_rails, -R 
+          Search only Rails source, not the project. Takes precedence over dir 
+          parameter 
+      --gems, -g 
+          Search all gems, in addition to whatever is named by dir parameter 
+          etc. 
+      --only_gems, -G 
+          Search only gems, not the project. Takes precedence over dir parameter 
+      --wait, -w 
+          Wait between finds until TextMate file is closed. Only works with 
+          textmate output (--textmate or -t). 
+      --count, -c 
+          Display only the number of matches. 
+      --regex, -e 
+          use regular expression search terms 
+      --help, -h 
+
+== Authors
+
+- Steven Soroka
+- Zach Holt
+
+== To Do
+
+- check ~/.grepmate for current rails repo to use instead of always using latest
+- change output file to write a system tempfile.
+- add include parameter to selectively include file extensions
+- Allow global and cwd .gmconfig files to determine things like exclusions and inclusions.
+- If we're not in a RAILS_ROOT, assume -r ./*
