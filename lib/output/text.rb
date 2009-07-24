@@ -1,11 +1,11 @@
 module Output
   class Text
-    def initialize(input, params)
-      @input = input
+    def initialize(grepmate)
+      @grepmate = grepmate
     end
     
     def process
-      puts @input
+      puts @grepmate.results
     end
   end
 end

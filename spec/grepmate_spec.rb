@@ -39,31 +39,76 @@ describe "Grepmate" do
     
     describe 'output' do
       it "should output text" do
-        puts `bin/grepmate --text 'Steven Soroka'`
+        result = `bin/grepmate --text 'Steven Soroka'`
+        # spec/grepmate_spec.rb:22:      `echo LICENSE | bin/grepmate -c "Steven Soroka"`.chomp.should == 'Matches: 1'
+        # spec/grepmate_spec.rb:36:      # from LICENSE: this will match:  Steven Soroka
+        # spec/grepmate_spec.rb:42:        puts `bin/grepmate --text 'Steven Soroka'`
+        # spec/grepmate_spec.rb:46:        # `bin/grepmate --html 'Steven Soroka'`
+        # spec/grepmate_spec.rb:61:        params.(blah blah blah blah blah blah blah blah blah blah)s => ["Steven Soroka"]))
+        result.should =~ /grepmate_spec/
       end
       
       it "should output html" do
         # `bin/grepmate --html 'Steven Soroka'`
         params = mock(:params)
-        params.should_receive(:[]).with('html').and_return(mock(:html, :value => true))
-        params.should_receive(:[]).with('text').and_return(mock(:text, :value => false))
-        params.should_receive(:[]).with('textmate').and_return(mock(:textmate, :value => false))
-        params.should_receive(:[]).with('file_and_line').and_return(mock(:file_and_line, :value => false))
-        params.should_receive(:[]).with('dir').and_return(mock(:dir, :values => ['bin', 'config', 'lib', 'spec'], :values= => nil))
-        params.should_receive(:[]).with('rails').and_return(mock(:rails, :given? => nil, :value => nil))
-        params.should_receive(:[]).with('gems').and_return(mock(:gems, :given? => nil, :value => nil))
-        params.should_receive(:[]).with('only_rails').and_return(mock(:only_rails, :value => nil))
-        params.should_receive(:[]).with('only_gems').and_return(mock(:only_gems, :value => nil))
-        params.should_receive(:[]).with('regex').and_return(mock(:regex, :value => nil))
-        params.should_receive(:[]).with('case').and_return(mock(:case, :value => nil))
-        params.should_receive(:[]).with('count').and_return(mock(:case, :value => nil))
-        params.should_receive(:[]).with('what_to_search_for').and_return(mock(:what_to_search_for, :values => ["Steven Soroka"]))
+        params.should_receive(:[]).with('html').any_number_of_times.and_return(mock(:html, :value => true))
+        params.should_receive(:[]).with('text').any_number_of_times.and_return(mock(:text, :value => false))
+        params.should_receive(:[]).with('textmate').any_number_of_times.and_return(mock(:textmate, :value => false))
+        params.should_receive(:[]).with('file_and_line').any_number_of_times.and_return(mock(:file_and_line, :value => false))
+        params.should_receive(:[]).with('dir').any_number_of_times.and_return(mock(:dir, :values => ['bin', 'config', 'lib', 'spec'], :values= => nil))
+        params.should_receive(:[]).with('rails').any_number_of_times.and_return(mock(:rails, :given? => nil, :value => nil))
+        params.should_receive(:[]).with('gems').any_number_of_times.and_return(mock(:gems, :given? => nil, :value => nil))
+        params.should_receive(:[]).with('only_rails').any_number_of_times.and_return(mock(:only_rails, :value => nil))
+        params.should_receive(:[]).with('only_gems').any_number_of_times.and_return(mock(:only_gems, :value => nil))
+        params.should_receive(:[]).with('regex').any_number_of_times.and_return(mock(:regex, :value => nil))
+        params.should_receive(:[]).with('case').any_number_of_times.and_return(mock(:case, :value => nil))
+        params.should_receive(:[]).with('count').any_number_of_times.and_return(mock(:count, :value => nil))
+        params.should_receive(:[]).with('verbose').any_number_of_times.and_return(mock(:verbose, :value => nil))
+        params.should_receive(:[]).with('what_to_search_for').any_number_of_times.and_return(mock(:what_to_search_for, :values => ["Steven Soroka"]))
         
-        Object.should_receive(:system).with("open ")
-        Grepmate.new(params)
+        grepmate = Grepmate.new(params)
+        # hijack the output class so that it doesn't send the system() call.
+        output_class = Output::HTML.new(grepmate)
+        output_class.should_receive(:system).with("open #{Output::HTML::TEMP_FILE}")
+        
+        Output::HTML.stub!(:new).and_return(output_class)
+        
+        grepmate.find
+        grepmate.display
       end
       
-      it "should output textmate commands"
+      it "should output textmate commands" do
+        # `bin/grepmate --textmate 'Steven Soroka'`
+        params = mock(:params)
+        params.should_receive(:[]).with('html').any_number_of_times.and_return(mock(:html, :value => false))
+        params.should_receive(:[]).with('text').any_number_of_times.and_return(mock(:text, :value => false))
+        params.should_receive(:[]).with('textmate').any_number_of_times.and_return(mock(:textmate, :value => true))
+        params.should_receive(:[]).with('file_and_line').any_number_of_times.and_return(mock(:file_and_line, :value => false))
+        params.should_receive(:[]).with('dir').any_number_of_times.and_return(mock(:dir, :values => ['bin', 'config', 'lib', 'spec'], :values= => nil))
+        params.should_receive(:[]).with('rails').any_number_of_times.and_return(mock(:rails, :given? => nil, :value => nil))
+        params.should_receive(:[]).with('gems').any_number_of_times.and_return(mock(:gems, :given? => nil, :value => nil))
+        params.should_receive(:[]).with('only_rails').any_number_of_times.and_return(mock(:only_rails, :value => nil))
+        params.should_receive(:[]).with('only_gems').any_number_of_times.and_return(mock(:only_gems, :value => nil))
+        params.should_receive(:[]).with('regex').any_number_of_times.and_return(mock(:regex, :value => nil))
+        params.should_receive(:[]).with('case').any_number_of_times.and_return(mock(:case, :value => nil))
+        params.should_receive(:[]).with('count').any_number_of_times.and_return(mock(:count, :value => nil))
+        params.should_receive(:[]).with('verbose').any_number_of_times.and_return(mock(:verbose, :value => nil))
+        params.should_receive(:[]).with('wait').any_number_of_times.and_return(mock(:wait, :value => true))
+        params.should_receive(:[]).with('what_to_search_for').any_number_of_times.and_return(mock(:what_to_search_for, :values => ["Steven Soroka"]))
+        
+        grepmate = Grepmate.new(params)
+        # hijack the output class so that it doesn't send the system() call.
+        output_class = Output::Textmate.new(grepmate)
+        output_class.should_receive(:system).any_number_of_times # .with("mate -w blah blah"). I'm not going to try to guess all the finds.
+        output_class.stub!(:print) # I don't want to see the output.
+        output_class.stub!(:puts) # I don't want to see the output.
+        
+        Output::Textmate.stub!(:new).and_return(output_class)
+        
+        grepmate.find
+        grepmate.display
+      end
+      
       it "should output file and line number commands" do
         `bin/grepmate -f "module Output"`.split("\n").first.should =~ %r(lib/output/file_and_line\.rb:1)
       end

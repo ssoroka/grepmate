@@ -63,6 +63,10 @@ Main {
   option('regex', 'e') {
     description 'use regular expression search terms'
   }
+  
+  option('verbose', 'v') {
+    description 'Turn on verbose mode and explain everything'
+  }
 
   keyword('dir', 'd') {
     arity -1
@@ -75,6 +79,8 @@ Main {
   }
 
   def run
-    Grepmate.new(params)
+    grepmate = Grepmate.new(params)
+    grepmate.find
+    grepmate.display
   end
 }

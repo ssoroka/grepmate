@@ -1,11 +1,11 @@
 module Output
   class FileAndLine
-    def initialize(input, params)
-      @input = input
+    def initialize(grepmate)
+      @grepmate = grepmate
     end
     
     def process
-      @input.each{|line|
+      @grepmate.results.each{|line|
         if line
           puts line.split(':')[0..1].join(':')
         else

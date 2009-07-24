@@ -13,6 +13,7 @@ exclude_file_extensions:
   - gz
   - bz2
   - tar
+  - zip
   - db
   - sqlite
   - sqlite3
@@ -20,18 +21,32 @@ exclude_file_extensions:
   - DS_Store
   - svn
   - git
-exclude_from_path:
-  - \W.git\W
-  - \W.svn\W
-search_dirs: 
-  - app
-  - bin
-  - config
-  - db
-  - factories
-  - features
-  - lib
-  - public
-  - spec
-  - test
-  - vendor/plugins
+  - tmproj
+  - sql
+  - dat
+  - gitignore
+  - gitmodules
+  - gemspec
+  - rdoc
+  - ico
+  - pdf
+  - xml
+  - html
+  - swf
+  - jpg
+  - png
+  - gif
+include_dirs: 
+  - .
+exclude_dirs:
+  - .git
+  - .svn
+  - sphinx
+  - sql
+  - tmp
+  - log
+  - doc
+  - coverage
+  - flash
+  - images
+  - videos

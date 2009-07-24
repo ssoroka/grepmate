@@ -52,7 +52,5 @@ Extremely fast search of rails projects or rails source for code, open in textma
 == To Do
 
 - check ~/.grepmate for current rails repo to use instead of always using latest
-- change output file to write a system tempfile.
 - add include parameter to selectively include file extensions
 - Allow global and cwd .gmconfig files to determine things like exclusions and inclusions.
-- If we're not in a RAILS_ROOT, assume -r ./*

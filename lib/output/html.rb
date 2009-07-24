@@ -2,15 +2,12 @@ module Output
   class HTML
     TEMP_FILE = File.expand_path(File.join(File.dirname(__FILE__), %w(.. .. tmp grepmate.html)))
     
-    def initialize(input, params)
-      @params = params
-      @input = input
+    def initialize(grepmate)
+      @grepmate = grepmate
     end
     
     def determine_javascript_highlight_text
-      # funny bunny => 'funny' 'bunny'
-      # 'funny bunny' => 'funny bunny'
-      @params['what_to_search_for'].values.map {|v| "highlightSearchTerms('#{v.gsub(/'/, "\\'").gsub(/:/, "\\:")}', false)" }.join(";")
+      @grepmate.params['what_to_search_for'].values.map {|v| "highlightSearchTerms('#{v.gsub(/'/, "\\'").gsub(/:/, "\\:")}', false)" }.join(";")
     end
 
     def process
@@ -55,7 +52,12 @@ module Output
   document.body.innerHTML=bodyText;return true;}</script></script>
     CSS
 
-      html << "</head><body onLoad=\"#{determine_javascript_highlight_text}\">"
+      # some searches can return stupid-huge result sets.  Javascript will likely freeze or crash the browser in those cases.
+      if @grepmate.results.size < 1000
+        html << "</head><body onLoad=\"#{determine_javascript_highlight_text}\">"
+      else
+        html << "</head><body>"
+      end
 
       syntax_converter = (syntax_installed ? Syntax::Convertors::HTML.for_syntax("ruby") : nil)
       html << '<pre>sudo gem install syntax</pre> to get syntax highlighting<br><br>' unless syntax_installed
@@ -65,7 +67,7 @@ module Output
       last_file = ''
       separator = false
 
-      html << @input.map{ |line|
+      html << @grepmate.results.map{ |line|
         if line == '--'
           separator = true
           ''

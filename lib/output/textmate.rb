@@ -1,19 +1,21 @@
 module Output
   class Textmate
-    def initialize(input, params)
-      @input = input
+    def initialize(grepmate)
+      @grepmate = grepmate
     end
     
     def process
-      print "Found #{input.size} matches.  "
-      if input.size > 20
+      print "Found #{@grepmate.results.size} matches.  "
+      if @grepmate.results.size > 20
         puts  "Display? [Y/n]..."
         exit if $stdin.gets.chomp.downcase == 'n'
+      else
+        puts ''
       end
 
-      input.each { |f|
+      @grepmate.results.each { |f|
         file, line = f.split(':')
-        system("mate #{'-w ' if params['wait'].value}-l #{line} #{file}")
+        system("mate #{'-w ' if @grepmate.params['wait'].value}-l #{line} #{file}")
       }
     end
   end
