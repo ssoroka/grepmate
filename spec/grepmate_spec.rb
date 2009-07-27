@@ -69,7 +69,7 @@ describe "Grepmate" do
         grepmate = Grepmate.new(params)
         # hijack the output class so that it doesn't send the system() call.
         output_class = Output::HTML.new(grepmate)
-        output_class.should_receive(:system).with("open #{Output::HTML::TEMP_FILE}")
+        output_class.should_receive(:system).with("open #{output_class.instance_variable_get('@temp_file')}")
         
         Output::HTML.stub!(:new).and_return(output_class)
         
