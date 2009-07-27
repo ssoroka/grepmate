@@ -1,6 +1,6 @@
 module Output
   class HTML
-    TEMP_FILE = File.expand_path(File.join(File.dirname(__FILE__), %w(.. .. tmp grepmate.html)))
+    TEMP_FILE = File.expand_path(File.join(ENV['TMPDIR'], %w(grepmate.html)))
     
     def initialize(grepmate)
       @grepmate = grepmate
