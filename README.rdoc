@@ -58,5 +58,3 @@ Supports opening search results in textmate, browser (html), or as text.
 == To Do
 
 - check ~/.grepmate for current rails repo to use instead of always using latest
-- add include parameter to selectively include file extensions
-- Allow global and cwd .gmconfig files to determine things like exclusions and inclusions.
