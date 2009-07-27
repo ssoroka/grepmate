@@ -11,7 +11,7 @@ require File.join(File.dirname(__FILE__), 'output', 'text')
 require File.join(File.dirname(__FILE__), 'output', 'file_and_line')
 
 class Grepmate
-  attr_reader :params, :dirs, :query, :results
+  attr_reader :params, :dirs, :query, :results, :config
   CONFIG_FILE = File.expand_path("~/.grepmate")
   
   def initialize(params)

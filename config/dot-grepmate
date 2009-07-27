@@ -2,6 +2,7 @@
 --- 
 # valid outputs are: text, html, textmate, file_and_line
 default_output: html
+temp_directory: <%= ENV['TMPDIR'] %>
 search_rails_source: false
 search_gems: false
 # if you only want to search a specific rails version, uncomment and set this:

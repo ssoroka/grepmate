@@ -1,9 +1,9 @@
 module Output
   class HTML
-    TEMP_FILE = File.expand_path(File.join(ENV['TMPDIR'], %w(grepmate.html)))
-    
     def initialize(grepmate)
       @grepmate = grepmate
+      temp_dir = grepmate.config['temp_directory'] || ENV['TMPDIR']
+      @temp_file = File.expand_path(File.join(temp_dir, %w(grepmate.html)))
     end
     
     def determine_javascript_highlight_text
@@ -115,21 +115,21 @@ module Output
       html << '</table></body></html>'
 
       begin
-        FileUtils.touch(TEMP_FILE)
+        FileUtils.touch(@temp_file)
       rescue Errno::EACCES => e
         puts %(
 
-        Looks like there's a permission error for the file #{TEMP_FILE}.  The grepmate gem expects to have write access to this file.
+        Looks like there's a permission error for the file #{@temp_file}.  The grepmate gem expects to have write access to this file.
 
         To fix, please do:
-          sudo chmod 0666 #{TEMP_FILE}
+          sudo chmod 0666 #{@temp_file}
           
         )
         raise e
       end
-      File.open(TEMP_FILE, 'w') { |f| f.write(html) }
+      File.open(@temp_file, 'w') { |f| f.write(html) }
 
-      system("open #{TEMP_FILE}")
+      system("open #{@temp_file}")
   
     end
   end
