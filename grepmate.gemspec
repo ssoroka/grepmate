@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{grepmate}
-  s.version = "2.0.1"
+  s.version = "2.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Steven Soroka", "Zach Holt"]
-  s.date = %q{2009-07-23}
+  s.date = %q{2009-07-27}
   s.default_executable = %q{grepmate}
   s.description = %q{Extremely fast search of rails projects or rails source for code, open in textmate or browser with html output}
   s.email = %q{ssoroka78@gmail.com}
