@@ -4,6 +4,7 @@ begin
 rescue LoadError
 end
 require 'yaml'
+require 'erb'
 require 'enumerator'
 require File.join(File.dirname(__FILE__), 'output', 'html')
 require File.join(File.dirname(__FILE__), 'output', 'textmate')
@@ -52,7 +53,7 @@ class Grepmate
     end
     
     # load
-    @config = YAML::load(File.read(CONFIG_FILE))
+    @config = YAML::load(ERB.new(File.read(CONFIG_FILE)).result)
     # set output type
     @output = @config['default_output']
     %w(html text textmate file_and_line).each{|out_type|
