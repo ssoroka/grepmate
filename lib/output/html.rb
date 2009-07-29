@@ -72,7 +72,7 @@ module Output
           separator = true
           ''
         elsif line =~ /^(.+?)-(\d+)-(.*)$/ || line =~ /^(.+?):(\d+):(.*)$/
-          file = $1
+          file = File.expand_path($1)
           line = $2
           context = $3
 
