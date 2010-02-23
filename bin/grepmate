@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-gem 'main', '>=2.8.0'
+gem 'main', '>=4.2.0'
 require 'main'
 require File.join(File.dirname(__FILE__), %w(.. lib grepmate))
 

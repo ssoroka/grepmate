@@ -3,6 +3,7 @@ begin
   gem 'syntax'
 rescue LoadError
 end
+require 'fileutils'
 require 'yaml'
 require 'erb'
 require 'enumerator'
@@ -184,5 +185,16 @@ class Grepmate
     if @params['verbose'].value
       puts msg
     end
+  end
+
+  def result_objects
+    @results.map{|l|
+      file, line, *text = l.split(':')
+      if file && !file.empty? && line && !line.empty?
+        {:file => file, :line => line, :text => text.join(':')}
+      else
+        {}
+      end
+    }
   end
 end

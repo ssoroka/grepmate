@@ -1,4 +1,4 @@
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require File.expand_path(File.join(File.dirname(__FILE__),  'spec_helper'))
 
 describe "Grepmate" do
   before(:each) do
@@ -21,11 +21,6 @@ describe "Grepmate" do
     it "should behave when piped STDIN files" do
       `echo LICENSE | bin/grepmate -c "Steven Soroka"`.chomp.should == 'Matches: 1'
     end
-    # 
-    # it "should search gems" do
-    #   # dev most likely has "main" gem installed, since it's a requirement, search for the words "gem install main" in the readme.
-    #   `bin/grepmate -G -f "gem install main" 2> /dev/null`.grep(/main-[\d\.]+\/README/).should_not be_nil
-    # end
     # 
     # it "should search rails" do
     #   # changelog is unlikely to change or go missing, since it's historical.
@@ -113,5 +108,18 @@ describe "Grepmate" do
         `bin/grepmate -f "module Output"`.split("\n").first.should =~ %r(lib/output/file_and_line\.rb:1)
       end
     end
+  end
+
+  it "result_objects" do
+    grepmate = Grepmate.new(Params.new('what_to_search_for' => 'Steven Soroka', 'text' => true, 'dir' => '.'))
+    grepmate.find
+    grepmate.result_objects.size.should > 10
+  end
+
+  it "should find 'gem install main' from the main gem that's hopefully installed" do
+    grepmate = Grepmate.new(Params.new('what_to_search_for' => 'gem install main', 'text' => true, 'only_gems' => true, 'dir' => '.'))
+    grepmate.find
+    grepmate.result_objects.size.should > 0
+    grepmate.result_objects.any?{|r| r[:file] =~ /README/ }.should be_true
   end
 end
